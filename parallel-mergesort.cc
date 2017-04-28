@@ -44,6 +44,37 @@ while(m<size1 && n<size2){
     a[index++] = temp2[n++];
 
 }
+keytype* parallel_Merge(keytype* a,keytype* b,int m,int n,int base){
+  int searchIndex = m/2;
+  keytype searchTerm = a[serachIndex];
+  int foundIndex = binarySearch(b,searchTerm,n);
+  int a2_size = m-searchindex;
+  int b2_size = n-foundindex;
+  keytype* A1 = newCopy(searchIndex,a);
+  keytype* B1 = newCopy(foundIndex,b);
+  keytype* A2 = newKeys(a2_size2);
+  keytype* B2 = newKeys(b2_size2);
+  memcpy (A2, a+searchIndex, size1 * sizeof (keytype));
+  memcpy (B2, b+foundIndex , size1 * sizeof (keytype));
+  keytype* c1 = parallel_Merge(A1,B1,searchIndex,foundIndex,base+1);
+  keytype* c2 = parallel_Merge(A2,B2,a2_size,b2_size2,base+1);
+  keytype* result = combine(c1,c2);
+  return result;
+}
+int binarySearch(keytype* b,keytype searchTerm,int size){
+    int low = 0;
+    int high = size;
+    int mid = size/2;
+    while(low<high){
+          mid = low + (high-low)/2;
+          if(b[mid]>=searchTerm){
+            high = mid;
+          }
+          else if(b[mid]<searchTerm){
+            low = mid+1;
+          }
+      return mid;
+}
 
 void mergeSort(keytype* a,int left,int right){
 
