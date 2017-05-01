@@ -130,7 +130,8 @@ void
 parallelSort (int N, keytype* A)
 {
   /* Lucky you, you get to start from scratch */
-  mergeSort(A, 0, N-1);
+  keytype* sortedArray = newKeys(N);
+  mergeSort(A,sortedArray, 0, N-1);
 }
 
 /* eof */
