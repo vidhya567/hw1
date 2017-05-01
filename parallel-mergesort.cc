@@ -9,6 +9,7 @@
 int TotalThreads ;
 int LeastProcesses;
 int binarySearch(keytype* b,keytype searchTerm,int startIndex,int endIndex){
+    printf("binarySearch\n");
     int low = startIndex;
     int high = endIndex;
     int mid;
@@ -25,6 +26,7 @@ int binarySearch(keytype* b,keytype searchTerm,int startIndex,int endIndex){
 }
 int compare (const void* a, const void* b)
 {
+  printf("compare\n");
   keytype ka = *(const keytype *)a;
   keytype kb = *(const keytype *)b;
   if (ka < kb)
@@ -41,7 +43,7 @@ int size2 = r-w+1;
 int m = p;
 int n = w;
 int index = copyStart;
-
+printf("merge\n");
 while(m<=q && n<=r){
       if(a[m]<a[n]){
         sorted[index] = a[m];
@@ -67,7 +69,7 @@ void paMerge(keytype *a,keytype *sorted,int aStart,int aEnd,int bStart,int bEnd,
 	int asize = aEnd-aStart+1;
   int bsize = bEnd-bStart+1;
   int size = asize+bsize;
-
+  printf("paMerge\n");
   if(size<=LeastProcesses){
 		merge(a,sorted,aStart,aEnd,bStart,bEnd,copy);
 	}
@@ -93,7 +95,7 @@ void paMerge(keytype *a,keytype *sorted,int aStart,int aEnd,int bStart,int bEnd,
 }
 
 void mergeSort(keytype* a,keytype* sortedArray,int left,int right){
-
+printf("mergesort/n");
 int mid ;
  if(left<right){
 	mid = left+(right-left)/2;
@@ -112,7 +114,7 @@ int mid ;
 void parallelSort (int N, keytype* A) 
 {
 	keytype* sortedArray = new keytype[N]; 
-
+  
   #pragma omp parallel
   {
   	TotalThreads = omp_get_num_threads();
