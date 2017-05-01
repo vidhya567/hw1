@@ -106,12 +106,7 @@ void paMerge(keytype *a,keytype *sorted,int aStart,int aEnd,int bStart,int bEnd,
 void mergeSort(keytype* a,keytype* sortedArray,int left,int right){
 
 int mid ;
- int least= right-left+1;
- if(least<LeastProcesses){
-   qsort(a+left, least, sizeof(keytype), compare);
-   return;
-}
- else{
+ if(left<right){
 	mid = left+(right-left)/2;
 #pragma omp task
 	{
