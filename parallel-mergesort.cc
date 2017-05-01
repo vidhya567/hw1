@@ -9,7 +9,11 @@
 #include <stdlib.h>
 
 #include "sort.hh"
+#include <omp.h>
 
+
+int TotalThreads ;
+int LeastProcesses;
 int binarySearch(keytype* b,keytype searchTerm,int startIndex,int endIndex){
     int low = startIndex;
     int high = MAX(startIndex,endIndex+1);
@@ -118,8 +122,12 @@ int mid ;
 if(left<right){
 	mid = left+(right-left)/2;
   // printf("mid,%d\n",mid);
+	#pragma omp task
+	{
 	mergeSort(a,temp,left,mid);
+	}
 	mergeSort(a,temp,mid+1,right);
+	#pragma taskwait
 	// merge(a,left,mid,mid+1,right);
   paMerge(a,temp,left,mid,mid+1,right,left);
 	memcpy(a + left, temp + left, (right - left + 1) * sizeof(keytype));
@@ -130,8 +138,22 @@ void
 parallelSort (int N, keytype* A)
 {
   /* Lucky you, you get to start from scratch */
-  keytype* sortedArray = newKeys(N);
-  mergeSort(A,sortedArray, 0, N-1);
+ #pragma omp parallel
+  {
+  	TotalThreads = omp_get_num_threads();
+  	LeastProcesses = N/TotalThreads;
+    #pragma omp master
+    {
+      printf("Threads spawned: %d\n", TotalThreads);
+    }
+
+	  #pragma omp single
+    {
+      mergeSort(A,sortedArray, 0, N-1); 
+    }
+  }
+//   keytype* sortedArray = newKeys(N);
+//   mergeSort(A,sortedArray, 0, N-1);
 }
 
 /* eof */
