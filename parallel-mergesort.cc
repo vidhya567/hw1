@@ -33,42 +33,31 @@ int compare (const void* a, const void* b)
     return 0;
   else
     return 1;
-} 
+}
 void merge(keytype* a,keytype *sorted,int p,int q,int w,int r,int copyStart){
 
 int size1 = q-p+1;
 int size2 = r-w+1;
-keytype* temp1 = newKeys (size1);
-keytype* temp2 = newKeys (size2);
-// printf("p is,%d\n",p);
-// printf("q is,%d\n",q);
-// printf("r is %d\n",r);
-// printf("w is %d\n",w);
-// printf("merge\n");
-
-memcpy (temp1, a+p, size1 * sizeof (keytype));
-memcpy (temp2, a+w, size2 * sizeof (keytype));
-
-int m = 0;
-int n = 0;
+int m = p;
+int n = w;
 int index = copyStart;
 
-while(m<size1 && n<size2){
-      if(temp1[m]<temp2[n]){
-        sorted[index] = temp1[m];
+while(m<=q && n<=r){
+      if(a[m]<a[n]){
+        sorted[index] = a[m];
         m++;
       }
       else{
-        sorted[index] = temp2[n];
+        sorted[index] = a[n];
         n++;
       }
       index++;
   }
-  while(m<size1)
-    sorted[index++] = temp1[m++];
+  while(m<=q)
+    sorted[index++] = a[m++];
 
-  while(n<size2)
-    sorted[index++] = temp2[n++];
+  while(n<=r)
+    sorted[index++] = a[n++];
 
 }
 
