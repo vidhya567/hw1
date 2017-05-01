@@ -1,4 +1,3 @@
-
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,12 +5,12 @@
 #include <strings.h>
 #include <omp.h>
 #include "sort.hh"
-#define MAX(a,b) (((a)>(b))?(a):(b))
+
 int TotalThreads ;
 int LeastProcesses;
 int binarySearch(keytype* b,keytype searchTerm,int startIndex,int endIndex){
     int low = startIndex;
-    int high = MAX(startIndex,endIndex+1);
+    int high = endIndex;
     int mid;
     while(low<high){
           mid = low + (high-low)/2;
@@ -24,6 +23,17 @@ int binarySearch(keytype* b,keytype searchTerm,int startIndex,int endIndex){
         }
       return high;
 }
+int compare (const void* a, const void* b)
+{
+  keytype ka = *(const keytype *)a;
+  keytype kb = *(const keytype *)b;
+  if (ka < kb)
+    return -1;
+  else if (ka == kb)
+    return 0;
+  else
+    return 1;
+} 
 void merge(keytype* a,keytype *sorted,int p,int q,int w,int r,int copyStart){
 
 int size1 = q-p+1;
@@ -74,39 +84,20 @@ void paMerge(keytype *a,keytype *sorted,int aStart,int aEnd,int bStart,int bEnd,
 	}
 	else{
 
-						if(asize<bsize){
-							int exchange ;
-
-							exchange = aStart;
-							aStart = bStart;
-							bStart = exchange;
-
-							exchange = aEnd;
-							aEnd = bEnd;
-							bEnd = exchange;
-
-							exchange = asize;
-							asize = bsize;
-							bsize = exchange;
-
-						}
-
-						if(asize == 0){
-							return;
-						}else{
-											  int searchIndex = (aStart+aEnd)/2;
-											  keytype searchTerm = a[searchIndex];
-											  // printf ("Search term %lu\n",searchTerm);
-											  int foundIndex = binarySearch(a,searchTerm,bStart,bEnd);
-											  int copyAt = copy+(searchIndex-aStart)+(foundIndex-bStart)+1;
-											  sorted[copyAt-1] = searchTerm;
-											  #pragma omp task
-     										   {
-											  		paMerge(a,sorted,aStart,searchIndex-1,bStart,foundIndex-1,copy);
-											   }
-											  paMerge(a,sorted,searchIndex+1,aEnd,foundIndex,bEnd,copyAt);
-											  #pragma omp taskwait
-								}
+					
+		int searchIndex = (aStart+aEnd)/2;
+		keytype searchTerm = a[searchIndex];
+		// printf ("Search term %lu\n",searchTerm);
+		int foundIndex = binarySearch(a,searchTerm,bStart,bEnd);
+		int copyAt = copy+(searchIndex-aStart)+(foundIndex-bStart)+1;
+		sorted[copyAt-1] = searchTerm;
+		#pragma omp task
+		{
+			paMerge(a,sorted,aStart,searchIndex-1,bStart,foundIndex-1,copy);
+		}
+		paMerge(a,sorted,searchIndex+1,aEnd,foundIndex,bEnd,copyAt);
+		#pragma omp taskwait
+								
 	}
 
 
@@ -115,14 +106,22 @@ void paMerge(keytype *a,keytype *sorted,int aStart,int aEnd,int bStart,int bEnd,
 void mergeSort(keytype* a,keytype* sortedArray,int left,int right){
 
 int mid ;
-
-if(left<right){
+ int least= right-left+1;
+ if(least<LeastProcesses){
+   qsort(a+left, least, sizeof(keytype), compare);
+   return;
+}
+ else{
 	mid = left+(right-left)/2;
+#pragma omp task
+	{
   // printf("mid,%d\n",mid);
 	mergeSort(a,sortedArray,left,mid);
+	}
 	mergeSort(a,sortedArray,mid+1,right);
 	// merge(a,left,mid,mid+1,right);
-  	paMerge(a,sortedArray,left,mid,mid+1,right,left);
+	#pragma taskwait
+	paMerge(a,sortedArray,left,mid,mid+1,right,left);
 	memcpy(a + left, sortedArray + left, (right - left + 1) * sizeof(keytype));
   }
 }
@@ -145,3 +144,4 @@ void parallelSort (int N, keytype* A)
     }
 
   }
+}
